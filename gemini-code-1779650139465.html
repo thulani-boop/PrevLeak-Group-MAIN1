@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrevLeak Group™ | Innovation Fleet</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --prevleak-teal: #008080;
+            --prevleak-blue: #1a237e;
+            --babita-gold: #ffd700;
+        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; }
+        .nav-brand { display: flex; align-items: center; padding: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .hero { background: linear-gradient(135deg, var(--prevleak-blue), var(--prevleak-teal)); color: white; padding: 80px 20px; text-align: center; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 40px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .babita-section { border-left: 5px solid var(--babita-gold); background: #fffdf2; margin-top: 20px; padding: 20px; }
+        .svg-logo { width: 50px; height: 50px; margin-right: 15px; }
+    </style>
+</head>
+<body>
+
+<nav class="nav-brand">
+    <svg class="svg-logo" viewBox="0 0 100 100">
+        <path d="M50 90 C20 90 10 60 50 10 C90 60 80 90 50 90" fill="url(#grad1)" />
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:var(--prevleak-teal);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--prevleak-blue);stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
+    <h1>PREVLEAK GROUP™</h1>
+</nav>
+
+<section class="hero">
+    <h2>PrevLeak Innovation Fleet</h2>
+    <p>Smart Infrastructure | Mobility Safety | Mathematical Aesthetics</p>
+</section>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h3>Soweto Node: CRT-JG700N [cite: 36]</h3>
+        <p>Status: <span style="color:green">NOMINAL</span></p>
+        <canvas id="pressureChart"></canvas>
+    </div>
+
+    <div class="card babita-section">
+        <h3>Babita Deokaran System™</h3>
+        <p><strong>Compliance:</strong> PFMA Act No. 1 of 1999</p>
+        <p><em>Enforcing accountability through division-free Vedic algorithms to prevent R850M leaks.</em></p>
+        <button onclick="recordVesselData()">Audit Procurement</button>
+    </div>
+</div>
+
+<script>
+    // Chart.js Integration for Real-time Telemetry [cite: 33]
+    const ctx = document.getElementById('pressureChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['12:00', '13:00', '14:00', '15:00'],
+            datasets: [{
+                label: 'Fluid Pressure (PSI)',
+                data: [118, 122, 120, 119],
+                borderColor: '#008080'
+            }]
+        }
+    });
+
+    // Google Apps Script Handshake [cite: 36, 148]
+    function recordVesselData() {
+        console.log("Initiating Handshake: prevleak_secure_handshake_key_2026...");
+        // In production, this calls google.script.run
+    }
+</script>
+
+</body>
+</html>

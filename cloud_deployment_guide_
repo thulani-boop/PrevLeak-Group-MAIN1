@@ -1,0 +1,51 @@
+# Prevleak Group™ Cloud Shell Recovery & Deployment Guide
+
+This guide helps you recover your Google Cloud Shell terminal environment and deploy your innovations backend smoothly to project **761338287468**.
+
+---
+
+## 1. Diagnostic: What Went Wrong in the Terminal?
+
+### A. Pasting JavaScript/YAML Directly into Bash
+* **The Error:** `-bash: const: command not found` or `-bash: on:: command not found`.
+* **The Cause:** The command terminal is a **Bash shell**. It only understands Linux/Unix shell commands (like `gcloud`, `cd`, `ls`, `mkdir`). It does not understand Google Apps Script (JavaScript) or GitHub Actions (YAML) unless they are written into a file first.
+
+### B. Confusing the Google Cloud Console with Google Apps Script
+* **The Error:** `sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();` threw a syntax error near `(`.
+* **The Cause:** `SpreadsheetApp` is exclusive to Google Apps Script (`script.google.com`). It does not exist in Google Cloud Console or Google Cloud Shell. Google Cloud Shell handles virtual machines, APIs, and raw server deployments.
+
+### C. gcloud init Configuration Name Crash
+* **The Error:** `ERROR: (gcloud.init) Invalid name [name: Deploy Prevleak Innovation Fleet...]`.
+* **The Cause:** When `gcloud init` asked you to name your local configuration profile, the system expected a simple string like `prevleak-prod`. Pasting the GitHub Actions YAML block there violated the naming rules.
+
+---
+
+## 2. Resolving the Gemini Assistant IAM Permissions
+The console showed a diagnostic error warning that you lack permissions for `cloudaicompanion.topics.create` and `geminicloudassist.agents.invoke` on your sandbox folder resource.
+
+* **What this means:** Your organization account (`thulani@prevleakgroup.company`) does not have the Gemini Cloud Assist roles enabled in IAM.
+* **The Solution:** **Ignore it.** These permissions are only required if you use Google's automated AI assistant panel on the side of the console. They are **not** required to deploy your Cloud Functions or manage your Google Sheets integrations. You can run native deployment commands safely.
+
+---
+
+## 3. How to Deploy the Cloud Function Safely
+
+Instead of typing files manually, use the automated setup script (`setup_and_deploy.sh`) provided in your workspace. It does the following:
+
+1. Reset your `gcloud` config to target your project number **`761338287468`**.
+2. Create a clean project directory (`prevleak-backend`).
+3. Write a production-grade, highly secure Node.js 20 script for your `recordVesselData` telemetry receiver.
+4. Write the corresponding dependency file (`package.json`).
+5. Run the native deployment command to spin up your HTTPS-triggered telemetry receiver endpoint.
+
+---
+
+## 4. Setting up GitHub Actions Correctly
+If you want to use the GitHub Actions CI/CD workflow you pasted, **do not paste it in the terminal**. 
+
+1. Create a repository on GitHub.
+2. In your local codebase, create a folder structure exactly like this:
+   `.github/workflows/deploy.yml`
+3. Paste your YAML configuration into that `deploy.yml` file.
+4. Add your Google Cloud Service Account Key to your GitHub Repository Secrets under **`GCP_SA_KEY`**.
+5. When you push to your `main` branch, GitHub will automatically log in and deploy your telemetry function for you!
