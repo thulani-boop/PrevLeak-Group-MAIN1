@@ -1,0 +1,158 @@
+/**
+ * PREVLEAK GROUP™ - Google Workspace Deployment Engine
+ * File: Code.gs
+ * * * * * SCRIPT PROPERTIES CONFIGURATION:
+ * This script now dynamically loads credentials from Apps Script's secure "Script Properties" store.
+ * You can set these properties in two ways:
+ * * WAY A (Programmatically):
+ * 1. Open this script in your Google Apps Script editor.
+ * 2. Select "setupScriptProperties" from the top dropdown run toolbar and click "Run".
+ * 3. This initializes your secure keys automatically.
+ * * WAY B (Manual UI):
+ * 1. On the left sidebar of your Apps Script editor, click the gear icon (Project Settings).
+ * 2. Scroll down to the "Script Properties" section.
+ * 3. Click "Add script property" and define these Name/Value pairs:
+ * - NOTIFICATION_EMAIL : thulani.khumalo@yourdomain.co.za
+ * - GCP_PROJECT_NUMBER : 761338287468
+ * * * * * GOOGLE CLOUD PROJECT LINKING INSTRUCTIONS:
+ * 1. Go to Project Settings (gear icon on the left).
+ * 2. Under "Google Cloud Platform (GCP) Project", click "Change project".
+ * 3. Enter your GCP Project Number: 761338287468
+ * 4. Click "Set project" to establish the linkage.
+ */
+
+// Load the script properties dynamically from the environment
+const scriptProperties = PropertiesService.getScriptProperties();
+
+// Constant fallback options in case properties aren't configured in the environment yet
+const APP_TITLE = "PREVLEAK GROUP™ | Executive Portal";
+const NOTIFICATION_EMAIL = scriptProperties.getProperty('NOTIFICATION_EMAIL') || "thulani.khumalo@yourdomain.co.za";
+const GCP_PROJECT_NUMBER = scriptProperties.getProperty('GCP_PROJECT_NUMBER') || "761338287468";
+
+/**
+ * Serves the primary single-file HTML portal on your custom Google Domain
+ */
+function doGet(e) {
+  // Directly serves the static index.html file.
+  // Using createHtmlOutputFromFile is safer and faster than createTemplateFromFile
+  // because it bypasses Apps Script scriptlet parsing, preventing errors if your HTML
+  // contains comparison operators (<, >) inside JavaScript or SVGs.
+  return HtmlService.createHtmlOutputFromFile('index')
+         .setTitle(APP_TITLE)
+         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+         .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * Google Apps Script Web App form and data ingestion node.
+ * Connects the front-end interactive simulation data with Google Workspace logs.
+ */
+function recordVesselData(payload) {
+  try {
+    const timestamp = new Date();
+    let sheet;
+    
+    // Attempt to open or create a logging sheet in your Workspace drive
+    try {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    } catch(sheetError) {
+      // Fallback if Apps Script is not bound to a spreadsheet
+      const newDoc = SpreadsheetApp.create("PREVLEAK_GROUP_LOGS_" + timestamp.getFullYear());
+      sheet = newDoc.getActiveSheet();
+    }
+    
+    // Log the incoming telemetries or system triggers
+    sheet.appendRow([
+      timestamp,
+      payload.module || "General Portal",
+      payload.status || "NOMINAL",
+      JSON.stringify(payload.data || {}),
+      payload.userInitiated ? "Manual" : "Automated API Polling",
+      GCP_PROJECT_NUMBER // Tracking GCP binding inside spreadsheet entries
+    ]);
+
+    // Format GCP-linked logs to Stackdriver (visible in GCP Console under project 761338287468)
+    console.log({
+      message: `[PREVLEAK-SYSTEM] Logging active for module: ${payload.module}`,
+      gcpProject: GCP_PROJECT_NUMBER,
+      timestamp: timestamp.toISOString(),
+      payload: payload
+    });
+
+    // Send warning email alerts for critical thresholds
+    if (payload.status === "CRITICAL" || payload.status === "EMERGENCY") {
+      MailApp.sendEmail({
+        to: NOTIFICATION_EMAIL,
+        subject: `🚨 [PREVLEAK SLA ALERT] - ${payload.module} Status Red`,
+        body: `PREVLEAK GROUP™ Security Alert\n` +
+              `-------------------------------------\n` +
+              `Timestamp: ${timestamp.toISOString()}\n` +
+              `GCP Project Node: ${GCP_PROJECT_NUMBER}\n` +
+              `System Node: ${payload.module}\n` +
+              `Status Level: ${payload.status}\n` +
+              `Payload Details:\n${JSON.stringify(payload.data, null, 2)}\n\n` +
+              `Please log into your Google Workspace dashboard to review standard operations.`
+      });
+    }
+
+    return { success: true, loggedAt: timestamp.toISOString() };
+  } catch (error) {
+    Logger.log("Workspace registration failed: " + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Utility Setup Function:
+ * Run this function once from the Apps Script editor to securely initialize
+ * your environmental Script Properties without displaying them in raw code blocks.
+ */
+function setupScriptProperties() {
+  const properties = {
+    NOTIFICATION_EMAIL: "thulani.khumalo@yourdomain.co.za",
+    GCP_PROJECT_NUMBER: "761338287468"
+  };
+  
+  PropertiesService.getScriptProperties().setProperties(properties);
+  Logger.log("✅ PREVLEAK Script Properties initialized successfully.");
+  Logger.log("Configured Email: " + PropertiesService.getScriptProperties().getProperty('NOTIFICATION_EMAIL'));
+  Logger.log("Configured GCP ID: " + PropertiesService.getScriptProperties().getProperty('GCP_PROJECT_NUMBER'));
+}
+
+/**
+ * Default fallback function required to resolve the Google Apps Script IDE 
+ * "myFunction not found" and "Attempted to execute myFunction, but could not save" issues.
+ */
+function myFunction() {
+  Logger.log(`PREVLEAK Workspace System Check: OK (Linked to GCP Project: ${GCP_PROJECT_NUMBER})`);
+}
+name: Node.js Package
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
