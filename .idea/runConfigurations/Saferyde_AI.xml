@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Saferyde.AI" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="Android API 36.1, extension level 20 Platform" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <module name="PrevLeak-Group-MAIN1" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
