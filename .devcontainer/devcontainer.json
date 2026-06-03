@@ -2,12 +2,12 @@
   "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {}
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrevLeak Group™ Ecosystem</title>
+"<!DOCTYPE" "html>"
+"<html" "lang=""en"">"
+"<head>"
+    "<meta" "charset=""UTF-8"">"
+    "<meta" "name=""viewport" "content=""width=device-width, initial-scale=1.0"">"
+    "<title>PrevLeak" "Group"™ Ecosystem</title>
     <style>
         :root {
             --primary: #0056b3;
