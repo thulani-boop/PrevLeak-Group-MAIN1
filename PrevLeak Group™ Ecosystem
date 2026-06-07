@@ -734,7 +734,9 @@ deny[res] {
 }
 trivy config --policy /home/thulani/ .
 
-
+run:
+./gradlew bundleRelease
+terraform apply
 import data.lib.result
 
 # METADATA
