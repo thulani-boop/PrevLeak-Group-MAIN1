@@ -5,4 +5,168 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/PrevLeak-Group-MAIN1.iml" filepath="$PROJECT_DIR$/.idea/PrevLeak-Group-MAIN1.iml" />
     </modules>
   </component>
-</project>
+</project>{
+    "checks": [
+    {
+    "code": "CUS001",
+    "description": "Custom check to ensure 'environment' label is applied to all GCP instances",
+    "impact": "Missing labels make cost tracking and resource management difficult.",
+    "resolution": "Add the 'environment' label to the resource.",
+    "requiredTypes": [
+    "resource"
+    ],
+    "requiredLabels": [
+    "google_compute_instance"
+    ],
+    "severity": "ERROR",
+    "matchSpec": {
+    "name": "labels",
+    "action": "contains",
+    "value": "environment"
+    },
+    "errorMessage": "The 'environment' label is missing from the compute instance."
+    }
+    ]
+    package custom.gcp.compute.enforce_env_label
+
+    # This rule identifies any google_compute_instance that
+    # doesn't have a valid 'environment' label.
+    deny[msg] {
+    # Iterate through all compute instances
+    instance := input.google.compute.instances[_]
+
+    # Check if 'environment' label is missing or has an invalid value
+    valid_envs := {"prod", "staging", "dev"}
+    env_val := instance.labels.value["environment"]
+
+    not valid_envs[env_val]
+
+    msg := sprintf("Instance '%s' must have an 'environment' label set to one of: prod, staging, dev", [instance.name.value])
+    }
+    package user.gcp.storage.enforce_bucket_versioning
+
+    import data.lib.result
+
+    # METADATA
+    # title: Enforce versioning on GCS buckets
+    # description: Bucket versioning should be enabled to protect against accidental deletion or modification of data.
+    # scope: package
+    # schemas:
+    #   - input: schema["cloud"]
+    # custom:
+    #   id: CUS003
+    #   severity: MEDIUM
+    #   input:
+    #     selector:
+    #       - type: cloud
+    #         subtypes:
+    #           - service: storage
+    #             provider: gcp
+
+    deny[res] {
+    bucket := input.gcp.storage.buckets[_]
+
+    # Check if versioning is disabled or not set
+    not bucket.versioning.enabled.value
+
+    res := result.new(
+    sprintf("Bucket '%s' does not have versioning enabled.", [bucket.name.value]),
+    bucket.versioning.enabled,
+    )
+    }
+    }package user.gcp.storage.enforce_bucket_versioning
+
+    import data.lib.result
+
+    # METADATA
+    # title: Enforce versioning on GCS buckets
+    # description: Bucket versioning should be enabled to protect against accidental deletion or modification of data.
+    # scope: package
+    # schemas:
+    #   - input: schema["cloud"]
+    # custom:
+    #   id: CUS003
+    #   severity: MEDIUM
+    #   input:
+    #     selector:
+    #       - type: cloud
+    #         subtypes:
+    #           - service: storage
+    #             provider: gcp
+
+    deny[res] {
+    bucket := input.gcp.storage.buckets[_]
+
+    # Check if versioning is disabled or not set
+    not bucket.versioning.enabled.value
+
+    res := result.new(
+    sprintf("Bucket '%s' does not have versioning enabled.", [bucket.name.value]),
+    bucket.versioning.enabled,
+    )
+    }
+    package user.gcp.storage.enforce_public_access_prevention
+
+    import data.lib.result
+
+    # METADATA
+    # title: Enforce Public Access Prevention on GCS buckets
+    # description: Public Access Prevention should be set to 'enforced' to ensure that the bucket and its objects are not accessible to the public.
+    # scope: package
+    # schemas:
+    #   - input: schema["cloud"]
+    # custom:
+    #   id: CUS004
+    #   severity: HIGH
+    #   input:
+    #     selector:
+    #       - type: cloud
+    #         subtypes:
+    #           - service: storage
+    #             provider: gcp
+
+    deny[res] {
+    bucket := input.gcp.storage.buckets[_]
+
+    # Check if Public Access Prevention is not explicitly set to 'enforced'
+    bucket.public_access_prevention.value != "enforced"
+
+    res := result.new(
+    sprintf("Bucket '%s' does not have Public Access Prevention set to 'enforced'.", [bucket.name.value]),
+    bucket.public_access_prevention,
+    )
+    }
+    trivy config --policy /home/thulani/enforce_labels.rego .
+
+    package user.gcp.storage.enforce_bucket_cmek
+
+    import data.lib.result
+
+    # METADATA
+    # title: Enforce Customer-Managed Encryption Keys (CMEK) on GCS buckets
+    # description: GCS buckets should be encrypted using a Customer-Managed Encryption Key (CMEK) to ensure full control over data encryption.
+    # scope: package
+    # schemas:
+    #   - input: schema["cloud"]
+    # custom:
+    #   id: CUS006
+    #   severity: HIGH
+    #   input:
+    #     selector:
+    #       - type: cloud
+    #         subtypes:
+    #           - service: storage
+    #             provider: gcp
+
+    deny[res] {
+    bucket := input.gcp.storage.buckets[_]
+
+    # Check if a KMS key name is provided
+    not bucket.encryption.kms_key_name.value
+
+    res := result.new(
+    sprintf("Bucket '%s' is not encrypted with a Customer-Managed Encryption Key (CMEK).", [bucket.name.value]),
+    bucket.encryption.kms_key_name,
+    )
+    }
+

@@ -14,7 +14,38 @@
             --dark: #222;
             --light: #f9f9f9;
             --border: #ddd;
-        }
+package user.gcp.storage.enforce_public_access_prevention
+
+import data.lib.result
+
+# METADATA
+# title: Enforce Public Access Prevention on GCS buckets
+# description: Public Access Prevention should be set to 'enforced' to ensure that the bucket and its objects are not accessible to the public.
+# scope: package
+# schemas:
+#   - input: schema["cloud"]
+# custom:
+#   id: CUS004
+#   severity: HIGH
+#   input:
+#     selector:
+#       - type: cloud
+#         subtypes:
+#           - service: storage
+#             provider: gcp
+
+deny[res] {
+bucket := input.gcp.storage.buckets[_]
+
+# Check if Public Access Prevention is not explicitly set to 'enforced'
+bucket.public_access_prevention.value != "enforced"
+
+res := result.new(
+sprintf("Bucket '%s' does not have Public Access Prevention set to 'enforced'.", [bucket.name.value]),
+bucket.public_access_prevention,
+)
+}
+}
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: var(--dark);
