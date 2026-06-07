@@ -1,8 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Saferyde.AI" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="Android API 36.1, extension level 20 Platform" />
-    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="sun.jvm.hotspot.ui.AnnotatedMemoryPanel" />
     <module name="PrevLeak-Group-MAIN1" />
+    <option name="PROGRAM_PARAMETERS" value="deploy" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
